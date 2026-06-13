@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>總部進銷存叫貨系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-color: #f8f9fa; --card-bg: #ffffff; --primary-color: #2d5a27; --accent-color: #e67e22; --text-color: #333333; --border-color: #e0e0e0; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
+        header { background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .logo-area { font-family: 'Caveat', cursive; font-size: 36px; color: var(--primary-color); margin-bottom: 5px; display: inline-block; border: 2px solid var(--primary-color); padding: 0px 15px; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; Context Shared:}
+        .logo-plus { font-weight: bold; font-size: 42px; margin: 0 10px; color: var(--accent-color); display: inline-block; transform: rotate(-5deg); Context Shared:}
+        .subtitle { font-size: 14px; color: #666; letter-spacing: 2px; }
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        .section-title { font-size: 18px; margin-bottom: 20px; font-weight: 700; border-left: 4px solid var(--primary-color); padding-left: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card h3 { margin: 0 0 10px 0; font-size: 18px; }
+        .stock { color: #7f8c8d; font-size: 14px; margin-bottom: 15px; }
+        .price { font-size: 16px; font-weight: bold; color: var(--text-color); margin-bottom: 15px; }
+        .btn { background-color: var(--primary-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
+        .btn:hover { background-color: #1e3d1a; }
+        .order-panel { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; height: fit-content; position: sticky; top: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 14px; font-weight: bold; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; }
+        .cart-items { margin: 15px 0; padding: 0; list-style: none; border-top: 1px dashed var(--border-color); padding-top: 15px; }
+        .cart-item { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+        .total-price { font-size: 18px; font-weight: bold; text-align: right; margin: 15px 0; color: var(--primary-color); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">HQ <span class="logo-plus">+</span> Store</div>
+        <div class="subtitle">現代簡約 ‧ 總部進銷存叫貨平台</div>
+    </header>
+
+    <div class="container">
+        <!-- 左側商品區 -->
+        <div>
+            <div class="section-title">總部即時商品庫存</div>
+            <div class="grid">
+                <div class="card">
+                    <h3>原味黑糖珍珠 (箱)</h3>
+                    <div class="stock">目前庫存：120 箱</div>
+                    <div class="price">$1,200</div>
+                    <button class="btn" onclick="addToCart('原味黑糖珍珠', 1200)">加入叫貨單</button>
+                </div>
+                <div class="card">
+                    <h3>特級茉莉綠茶 (包)</h3>
+                    <div class="stock">目前庫存：85 包</div>
+                    <div class="price">$350</div>
+                    <button class="btn" onclick="addToCart('特級茉莉綠茶', 350)">加入叫貨單</button>
+                </div>
+                <div class="card">
+                    <h3>專用環保紙杯 (箱)</h3>
+                    <div class="stock">目前庫存：200 箱</div>
+                    <div class="price">$800</div>
+                    <button class="btn" onclick="addToCart('專用環保紙杯', 800)">加入叫貨單</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右側叫貨單 -->
+        <div class="order-panel">
+            <div class="section-title">本次叫貨單</div>
+            
+            <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) {alert('🎉 叫貨單已成功送出至總部！'); window.location.reload();}"></iframe>
+            
+            <!-- 🛠️ 修改處 1：把下方的網址換成你在第二關第 6 步改好的 formResponse 網址 -->
+            <form id="orderForm" target="hidden_iframe" method="POST" action="https://docs.google.com/forms/d/e/1HJecGwzUP8hpqsKG9k2NYp4cNjtV5JRDxw2l1F-NzBA/formResponse">
+                
+                <div class="form-group">
+                    <label>1. 請輸入您的加盟店名</label>
+                    <!-- 🛠️ 修改處 2：把 name="entry.11111111" 的數字換成你找出的店名暗號 -->
+                    <input type="text" name="entry.1142360640" id="storeName" placeholder="例如：台中逢甲店" required>
+                </div>
+                <div class="form-group">
+                    <label>2. 您的聯絡電話</label>
+                    <!-- 🛠️ 修改處 3：把 name="entry.22222222" 的數字換成你找出的電話暗號 -->
+                    <input type="text" name="entry.1976005577" id="storePhone" placeholder="例如：0912-345678" required>
+                </div>
+
+                <label style="font-weight: bold; font-size: 14px;">3. 叫貨明細</label>
+                <ul class="cart-items" id="cartList">
+                    <p style="color:#999; font-size:14px;">尚未選擇商品</p>
+                </ul>
+                <div class="total-price" id="totalPrice">總金額：$0</div>
+                
+                <!-- 🛠️ 修改處 4：把 name="entry.33333333" 的數字換成你找出的明細暗號 -->
+                <input type="hidden" name="entry.1925530232" id="hiddenDetails">
+
+                <div class="form-group">
+                    <label>4. 備註說明</label>
+                    <!-- 🛠️ 修改處 5：把 name="entry.44444444" 的數字換成你找出的備註暗號 -->
+                    <textarea name="entry.601651899" id="orderNote" rows="3" placeholder="有什麼想對總部說的..."></textarea>
+                </div>
+
+                <button type="submit" class="btn" style="background-color: var(--accent-color);" onclick="prepareSubmit()">確認送出叫貨單</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let cart = {}; let submitted = false;
+        function addToCart(name, price) { if(cart[name]) { cart[name].qty += 1; } else { cart[name] = { price: price, qty: 1 }; } updateCartUI(); }
+        function updateCartUI() { const list = document.getElementById('cartList'); const totalEl = document.getElementById('totalPrice'); list.innerHTML = ''; let total = 0; if(Object.keys(cart).length === 0) { list.innerHTML = '<p style="color:#999; font-size:14px;">尚未選擇商品</p>'; totalEl.innerText = '總金額：$0'; return; } for(let key in cart) { const item = cart[key]; total += item.price * item.qty; list.innerHTML += `<li class="cart-item"><span>${key} x ${item.qty}</span><span>$${item.price * item.qty}</span></li>`; } totalEl.innerText = `總金額：$${total}`; }
+        function prepareSubmit() { const storeName = document.getElementById('storeName').value; const storePhone = document.getElementById('storePhone').value; if(!storeName || !storePhone) return; if(Object.keys(cart).length === 0) { alert('叫貨單內沒有商品！'); event.preventDefault(); return; } let orderDetails = ""; let total = 0; for(let key in cart) { orderDetails += `${key}(${cart[key].qty}件) `; total += cart[key].price * cart[key].qty; } orderDetails += ` [總金額: $${total}]`; document.getElementById('hiddenDetails').value = orderDetails; submitted = true; }
+    </script>
+</body>
+</html>
