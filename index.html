@@ -45,7 +45,7 @@
             <div class="grid">
                 <div class="card">
                     <h3>原味黑糖珍珠 (箱)</h3>
-                    <div class="stock">目前庫存：120 箱</div>
+                    <div class="stock">目​​前庫存：120 箱</div>
                     <div class="price">$1,200</div>
                     <button class="btn" onclick="addToCart('原味黑糖珍珠', 1200)">加入叫貨單</button>
                 </div>
@@ -93,7 +93,7 @@
                     <textarea name="entry.1848419616" id="orderNote" rows="3" placeholder="有什麼想對總部說的..."></textarea>
                 </div>
 
-                <button type="submit" class="btn" style="background-color: var(--accent-color);" onclick="prepareSubmit(event)">確認送出叫貨單</button>
+                <button type="button" class="btn" style="background-color: var(--accent-color);" onclick="executeSubmit()">確認送出叫貨單</button>
             </form>
         </div>
     </div>
@@ -102,7 +102,33 @@
         let cart = {}; let submitted = false;
         function addToCart(name, price) { if(cart[name]) { cart[name].qty += 1; } else { cart[name] = { price: price, qty: 1 }; } updateCartUI(); }
         function updateCartUI() { const list = document.getElementById('cartList'); const totalEl = document.getElementById('totalPrice'); list.innerHTML = ''; let total = 0; if(Object.keys(cart).length === 0) { list.innerHTML = '<p style="color:#999; font-size:14px;">尚未選擇商品</p>'; totalEl.innerText = '總金額：$0'; return; } for(let key in cart) { const item = cart[key]; total += item.price * item.qty; list.innerHTML += `<li class="cart-item"><span>${key} x ${item.qty}</span><span>$${item.price * item.qty}</span></li>`; } totalEl.innerText = `總金額：$${total}`; }
-        function prepareSubmit(e) { const storeName = document.getElementById('storeName').value; const storePhone = document.getElementById('storePhone').value; if(!storeName || !storePhone) return; if(Object.keys(cart).length === 0) { alert('叫貨單內沒有商品！'); e.preventDefault(); return; } let orderDetails = ""; let total = 0; for(let key in cart) { orderDetails += `${key}(${cart[key].qty}件) `; total += cart[key].price * cart[key].qty; } orderDetails += ` [總金額: $${total}]`; document.getElementById('hiddenDetails').value = orderDetails; submitted = true; }
+        
+        // 🛠️ 重新理順邏輯的無敵送出機制
+        function executeSubmit() {
+            const storeName = document.getElementById('storeName').value.trim();
+            const storePhone = document.getElementById('storePhone').value.trim();
+            
+            if(!storeName || !storePhone) {
+                alert('請填寫加盟店名與聯絡電話！');
+                return;
+            }
+            if(Object.keys(cart).length === 0) {
+                alert('叫貨單內沒有商品！');
+                return;
+            }
+            
+            // 1. 先百分之百打包好明細
+            let orderDetails = ""; let total = 0;
+            for(let key in cart) { orderDetails += `${key}(${cart[key].qty}件) `; total += cart[key].price * cart[key].qty; }
+            orderDetails += ` [總金額: $${total}]`;
+            document.getElementById('hiddenDetails').value = orderDetails;
+            
+            // 2. 開啟成功視窗開關
+            submitted = true;
+            
+            // 3. 由大腦命令表單正式出發
+            document.getElementById('orderForm').submit();
+        }
     </script>
 </body>
 </html>
