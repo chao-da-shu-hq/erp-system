@@ -9,8 +9,8 @@
         :root { --bg-color: #f8f9fa; --card-bg: #ffffff; --primary-color: #2d5a27; --accent-color: #e67e22; --text-color: #333333; --border-color: #e0e0e0; }
         body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
         header { background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .logo-area { font-family: 'Caveat', cursive; font-size: 36px; color: var(--primary-color); margin-bottom: 5px; display: inline-block; border: 2px solid var(--primary-color); padding: 0px 15px; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; Context Shared:}
-        .logo-plus { font-weight: bold; font-size: 42px; margin: 0 10px; color: var(--accent-color); display: inline-block; transform: rotate(-5deg); Context Shared:}
+        .logo-area { font-family: 'Caveat', cursive; font-size: 36px; color: var(--primary-color); margin-bottom: 5px; display: inline-block; border: 2px solid var(--primary-color); padding: 0px 15px; border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; }
+        .logo-plus { font-weight: bold; font-size: 42px; margin: 0 10px; color: var(--accent-color); display: inline-block; transform: rotate(-5deg); }
         .subtitle { font-size: 14px; color: #666; letter-spacing: 2px; }
         .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
         @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
@@ -71,18 +71,15 @@
             
             <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted) {alert('🎉 叫貨單已成功送出至總部！'); window.location.reload();}"></iframe>
             
-            <!-- 🛠️ 修改處 1：把下方的網址換成你在第二關第 6 步改好的 formResponse 網址 -->
             <form id="orderForm" target="hidden_iframe" method="POST" action="https://docs.google.com/forms/d/e/1HJecGwzUP8hpqsKG9k2NYp4cNjtV5JRDxw2l1F-NzBA/formResponse">
                 
                 <div class="form-group">
                     <label>1. 請輸入您的加盟店名</label>
-                    <!-- 🛠️ 修改處 2：把 name="entry.11111111" 的數字換成你找出的店名暗號 -->
                     <input type="text" name="entry.1142360640" id="storeName" placeholder="例如：台中逢甲店" required>
                 </div>
                 <div class="form-group">
                     <label>2. 您的聯絡電話</label>
-                    <!-- 🛠️ 修改處 3：把 name="entry.22222222" 的數字換成你找出的電話暗號 -->
-                    <input type="text" name="entry.1976005577" id="storePhone" placeholder="例如：0912-345678" required>
+                    <input type="text" name="entry.1142360640" id="storePhone" placeholder="例如：0912-345678" required>
                 </div>
 
                 <label style="font-weight: bold; font-size: 14px;">3. 叫貨明細</label>
@@ -91,16 +88,14 @@
                 </ul>
                 <div class="total-price" id="totalPrice">總金額：$0</div>
                 
-                <!-- 🛠️ 修改處 4：把 name="entry.33333333" 的數字換成你找出的明細暗號 -->
                 <input type="hidden" name="entry.1925530232" id="hiddenDetails">
 
                 <div class="form-group">
                     <label>4. 備註說明</label>
-                    <!-- 🛠️ 修改處 5：把 name="entry.44444444" 的數字換成你找出的備註暗號 -->
                     <textarea name="entry.601651899" id="orderNote" rows="3" placeholder="有什麼想對總部說的..."></textarea>
                 </div>
 
-                <button type="submit" class="btn" style="background-color: var(--accent-color);" onclick="prepareSubmit()">確認送出叫貨單</button>
+                <button type="submit" class="btn" style="background-color: var(--accent-color);" onclick="prepareSubmit(event)">確認送出叫貨單</button>
             </form>
         </div>
     </div>
@@ -109,7 +104,7 @@
         let cart = {}; let submitted = false;
         function addToCart(name, price) { if(cart[name]) { cart[name].qty += 1; } else { cart[name] = { price: price, qty: 1 }; } updateCartUI(); }
         function updateCartUI() { const list = document.getElementById('cartList'); const totalEl = document.getElementById('totalPrice'); list.innerHTML = ''; let total = 0; if(Object.keys(cart).length === 0) { list.innerHTML = '<p style="color:#999; font-size:14px;">尚未選擇商品</p>'; totalEl.innerText = '總金額：$0'; return; } for(let key in cart) { const item = cart[key]; total += item.price * item.qty; list.innerHTML += `<li class="cart-item"><span>${key} x ${item.qty}</span><span>$${item.price * item.qty}</span></li>`; } totalEl.innerText = `總金額：$${total}`; }
-        function prepareSubmit() { const storeName = document.getElementById('storeName').value; const storePhone = document.getElementById('storePhone').value; if(!storeName || !storePhone) return; if(Object.keys(cart).length === 0) { alert('叫貨單內沒有商品！'); event.preventDefault(); return; } let orderDetails = ""; let total = 0; for(let key in cart) { orderDetails += `${key}(${cart[key].qty}件) `; total += cart[key].price * cart[key].qty; } orderDetails += ` [總金額: $${total}]`; document.getElementById('hiddenDetails').value = orderDetails; submitted = true; }
+        function prepareSubmit(e) { const storeName = document.getElementById('storeName').value; const storePhone = document.getElementById('storePhone').value; if(!storeName || !storePhone) return; if(Object.keys(cart).length === 0) { alert('叫貨單內沒有商品！'); e.preventDefault(); return; } let orderDetails = ""; let total = 0; for(let key in cart) { orderDetails += `${key}(${cart[key].qty}件) `; total += cart[key].price * cart[key].qty; } orderDetails += ` [總金額: $${total}]`; document.getElementById('hiddenDetails').value = orderDetails; submitted = true; }
     </script>
 </body>
 </html>
